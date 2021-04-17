@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<title> </title>
+	</head>
+	<body>
+		 
+	</body>
+	<script type="text/javascript">
+let tries	= 10;
+let answer 	= ['r','g','b','k'];
+let stack  	= ['r','g','b','y','t','o','k','w'];
+ 
+let row  	= ['r','b','g','k'];
+
+let solved 	= (row.toString() == answer.toString());
+
+if (!solved){
+	let located 	= 0;
+	let inAnswer 	= 0;
+	let chkd		= {}
+	for (let i =0, l=row.length; i<l; i++){
+ 		let looking = answer.indexOf(row[i]);
+ 		if (chkd[row[i]] || looking < 0) {  continue;}
+ 		chkd[row[i]] =true;
+ 		if (looking ==  i){ located++ ;}
+		else {inAnswer++;}
+	}
+	alert(`In Answer: ${inAnswer}   |    Located: ${located}`);
+}
+	
+	</script>
+</html>
