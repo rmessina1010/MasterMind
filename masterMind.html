@@ -6,27 +6,39 @@
 		 
 	</body>
 	<script type="text/javascript">
-let tries	= 10;
-let answer 	= ['r','g','b','k'];
-let stack  	= ['r','g','b','y','t','o','k','w'];
- 
-let row  	= ['r','b','g','k'];
+		
+const tries	= 10;
+const stack  	= ['r','g','b','y','t','o','k','w'];
+const answer 	= ['r','g','b','k'];
 
-let solved 	= (row.toString() == answer.toString());
+let attempts= 0;
+let passLenght =answer.length;
+let answerStr = answer.join('');
 
-if (!solved){
-	let located 	= 0;
-	let inAnswer 	= 0;
-	let chkd		= {}
-	for (let i =0, l=row.length; i<l; i++){
- 		let looking = answer.indexOf(row[i]);
- 		if (chkd[row[i]] || looking < 0) {  continue;}
- 		chkd[row[i]] =true;
- 		if (looking ==  i){ located++ ;}
-		else {inAnswer++;}
+let solved;
+
+while (tries - attempts > 0){
+	attempts++;
+	let row  	=  prompt(`(ATTEMPT ${attempts}) \n CHOOSE ${passLenght} LETTERS FROM: ${stack}`);
+	row = row ? row.substring(0,answer.length) : '';
+	solved 	= (row == answerStr);
+	if (!solved){
+		let located 	= 0;
+		let inAnswer 	= 0;
+		let chkd		= {}
+		for (let i =0, l=row.length; i<l; i++){
+	 		let looking = answer.indexOf(row[i]);
+	 		if (chkd[row[i]] || looking < 0) {  continue;}
+	 		chkd[row[i]] =true;
+	 		if (looking ==  i){ located++ ;}
+			else {inAnswer++;}
+		}
+		alert(`In Answer: ${inAnswer}   |    Located: ${located}`);
 	}
-	alert(`In Answer: ${inAnswer}   |    Located: ${located}`);
+	else{
+		break;
+	}
 }
-	
-	</script>
+alert(solved ? 'YOU WIN!!!!' : 'YOU LOSE.'); 
+</script>
 </html>
