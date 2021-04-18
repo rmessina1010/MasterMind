@@ -1,36 +1,178 @@
 <html>
 	<head>
 		<title> </title>
-	</head>
+	<meta charset="UTF-8"> 
+		<style type="text/css" media="screen">
+			body{
+				text-align: center;
+			}
+			#app{
+				display: inline-block;
+ 			}
+		#options {
+ 			border-radius: .2em;
+			margin: .3em 0;
+			display: block;
+			max-width: 50%;
+ 			border: 1px solid #777;
+ 			border-radius: .25em;
+		}
+		#message {
+			text-align: center;
+		}
+		#guess{
+			display: block;
+ 			width: 50%;
+ 			box-sizing: border-box;
+ 			padding: .5em  ;
+ 			background: none;
+ 			border: 1px solid #777;
+ 			border-radius: .25em;
+ 			
+		}
+	    #app  div > span { display: inline-block; padding: .3em .5em;  }
+		#options > *.selected { 
+			outline: 1px solid cyan;
+		}
+ 		#board .active span{
+			cursor:help;
+			opacity: 100%;
+		}
+		#board span{
+			opacity: 60%;
+		}
+		.r:before { content:'🍏';}
+ 		.g:before { content:'🍐';}
+ 		.b:before { content:'🍊';}
+ 		.y:before { content:'🍋';}
+ 		.t:before { content:'🍒';}
+ 		.o:before { content:'🍉';}
+ 		.k:before { content:'🍇';}
+ 		.w:before { content:'🍓';}
+ 		.none:before { content:'🤔'; }
+ 		.secret:before{content: '🤐';}
+ 		</style>
+ 	</head>
 	<body>
-		 
+		 <div id="app">
+			 <div  id="passkey"></div>
+			 <div  id="message">&nbsp;</div>
+ 			 <div id="board"></div>
+ 			 <div id="options"></div>
+			 <button id="guess">Submit</button>
+		 </div>
 	</body>
 	<script type="text/javascript">
 		
-const tries		=  10;
+const tries		=  4;
 let stack  		=  ['r','g','b','y','t','o','k','w'];
 let answer		=[];
 let selectd 	={};
 let passLenght 	= 4;
+var currentOpt	= null;
+
+//setup  
+let options = document.getElementById('options');
+let passkey = document.getElementById('passkey');
+let board = document.getElementById('board');
+let guess  = document.getElementById('guess');
+guess.value =tries;
+options.addEventListener('click', chooseOption);
+board.addEventListener('click', palceOption);
+guess.addEventListener('click', subGuess);
+
+stack.map((opt, i)=>addOption(opt,options,i));
+buildGameRows(board,tries, passLenght);
+
+
+function addOption(opt,el, key){
+ 	childs =el.children;
+	if (childs[key] === undefined){
+		let o = document.createElement('span');
+		o.className = opt;
+		o.dataset.opt = opt;
+		el.appendChild(o.cloneNode(true));
+	}
+}
+
+function buildGameRows(shell,tries, passLen){
+	let o = document.createElement('span');
+ 	o.className='none';
+ 	let p ='';
+ 	let d = document.createElement('div');
+	for (let i = 0;  i < passLen; i++){
+		d.appendChild(o.cloneNode(true));
+		p= p + '<span class="secret"></span>';
+	}
+	for (let i = 0;  i < tries; i++){
+		if (i == tries-1){d.className='active';}
+		shell.appendChild(d.cloneNode(true));
+	}
+	passkey.innerHTML=p;
+	
+}
+
+function chooseOption(e){
+	if (currentOpt) { currentOpt.classList.remove('selected');}
+	currentOpt =  e.target;
+	currentOpt.classList.add('selected');
+}
+
+function subGuess(){
+	if (this.value < 1) { return; }
+	let onRow =this.value -1;
+	let theRow = board.children[onRow];
+	let theGuess = getGuess(theRow);
+	if (theGuess.indexOf('undefined') > -1) { 
+		alert('Please complete the row.');
+		return ;
+	}
+ 	let isRight = checkGuess(theGuess);
+ 	theRow.classList.remove('active');
+ 	if (isRight){ endGame (true); }
+ 	else if (onRow > 0){
+	 	board.children[onRow-1].classList.add('active');
+		this.value =  onRow;
+ 	}else{ endGame(false);}
+ }
+ 
+ 
+ function endGame(win){
+ 	let message = document.getElementById('message');
+ 	passkey.innerHTML= answersHTML;
+ 	message.innerHTML=  (win ? 'YOU WIN!!!' : 'You lose.') ;
+ }
+ 
+ function getGuess(row){
+	 let str='';
+	 
+	 for (let i=0 ; i < row.children.length; i++){
+		 str=str+row.children[i].dataset.opt;
+	 }
+	 return str
+ }
+ 
+function palceOption(e){
+	if (!currentOpt || !e.target.parentNode.classList.contains('active')){ return;}
+  	e.target.classList = currentOpt.classList;
+ 	e.target.classList.remove('selected');
+ 	e.target.dataset.opt = currentOpt.dataset.opt;
+}
 
 //creates random  answer from specified lengh;
+let answersHTML ='';
  while  (answer.length < passLenght){
 	let i = Math.floor(Math.random() * (stack.length));
 	if (selectd[i] === undefined) { 
 		answer.push(stack[i]);
+		answersHTML=answersHTML+`<span class="${stack[i]}"></span>`;
 		selectd[i] =i;
     }
  }
-
-let attempts= 0;
 let answerStr = answer.join('');
-let solved;
 
-while (tries - attempts > 0){
-	attempts++;
-	let row  	=  prompt(`(ATTEMPT ${attempts}) \n CHOOSE ${passLenght} LETTERS FROM: ${stack}`);
-	if (row == 'QUIT!'){ break;}
-	row = row ? row.substring(0,answer.length) : '';
+function checkGuess(row){
+	let solved;
 	solved 	= (row == answerStr);
 	if (!solved){
 		let located 	= 0;
@@ -44,12 +186,8 @@ while (tries - attempts > 0){
 			else {inAnswer++;}
 			chkd[row[i]] =true;
  		}
-		alert(`In Answer: ${inAnswer}   |    Located: ${located}`);
-	}
-	else{
-		break;
-	}
-}
-alert(solved ? 'YOU WIN!!!!' : `YOU LOSE. The ANSWER was: ${answer}.`); 
-</script>
+ 	}
+ 	return solved;
+ }
+ </script>
 </html>
