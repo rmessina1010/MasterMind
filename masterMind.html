@@ -1,33 +1,40 @@
 <html>
 	<head>
-		<title> </title>
-	<meta charset="UTF-8"> 
+		<title>Master Mind</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset="UTF-8"> 
 		<style type="text/css" media="screen">
-			body{
+		body{
 				text-align: center;
-			}
-			#app{
+ 		}
+		#app{
 				display: inline-block;
- 			}
+				position: relative;
+  		}
 		#options {
  			border-radius: .2em;
 			margin: .3em 0;
-			display: block;
-			max-width: 50%;
- 			border: 1px solid #777;
+			display: flex;
+  			border: 1px solid #777;
  			border-radius: .25em;
+ 			flex-wrap: wrap;
+ 			
 		}
-		#message {
+ 		#message {
 			text-align: center;
+ 			padding-right: 3em;
+		}
+		
+		#options, #guess { 
+			width: 9.4em;
 		}
 		#guess{
-			display: block;
- 			width: 50%;
- 			box-sizing: border-box;
- 			padding: .5em  ;
+			background-color: white;
+ 			padding:   .6em ;
  			background: none;
  			border: 1px solid #777;
  			border-radius: .25em;
+ 			margin-left: -3.5em;
  			
 		}
 	    #app  div > span { display: inline-block; padding: .3em .5em;  }
@@ -51,6 +58,40 @@
  		.w:before { content:'🍓';}
  		.none:before { content:'🤔'; }
  		.secret:before{content: '🤐';}
+ 		
+ 		#passkey{
+	 		text-align: left;
+ 		}
+ 		
+ 		.row {
+	 		display:flex;
+	 		
+ 		}
+ 		.row .pegs{
+	 		width: 3em;
+	 		position: relative;
+	 		top:.25em;
+ 		}
+ 		.row .pegs span{
+	 		font-size: 18px;
+	 		width: auto;
+	 		padding: 0;
+	 		margin: 0;
+	 		line-height: .2em;
+	 		letter-spacing: -2em;
+	 		word-spacing: -2em;
+	 		color:#bbb;
+ 		}
+ 		.row .pegs span:before{
+	 		content: '•';
+  		}
+ 		.row .pegs span.corr{
+	 		color:green;
+  		}
+ 		.row .pegs span.inpass{
+	 	    color:orange;
+
+  		}
  		</style>
  	</head>
 	<body>
@@ -64,7 +105,7 @@
 	</body>
 	<script type="text/javascript">
 		
-const tries		=  4;
+const tries		=  8;
 let stack  		=  ['r','g','b','y','t','o','k','w'];
 let answer		=[];
 let selectd 	={};
@@ -98,17 +139,25 @@ function addOption(opt,el, key){
 function buildGameRows(shell,tries, passLen){
 	let o = document.createElement('span');
  	o.className='none';
- 	let p ='';
- 	let d = document.createElement('div');
-	for (let i = 0;  i < passLen; i++){
+  	let d = document.createElement('div');
+ 	let pegs = document.createElement('div');
+ 	let row = document.createElement('div');
+ 	pegs.className='pegs';
+	let a= '<span class="secret"></span>'.repeat(passLen);
+	let peg='<span class="peg"></span>'.repeat(passLen);
+ 	for (let i = 0;  i < passLen; i++){
 		d.appendChild(o.cloneNode(true));
-		p= p + '<span class="secret"></span>';
 	}
+	pegs.innerHTML =peg;
 	for (let i = 0;  i < tries; i++){
 		if (i == tries-1){d.className='active';}
-		shell.appendChild(d.cloneNode(true));
+		let el = row.cloneNode();
+		el.className='row';
+		el.appendChild(d.cloneNode(true));
+		el.appendChild(pegs.cloneNode(true));
+  		shell.appendChild(el.cloneNode(true));
 	}
-	passkey.innerHTML=p;
+	passkey.innerHTML=a;
 	
 }
 
@@ -122,16 +171,17 @@ function subGuess(){
 	if (this.value < 1) { return; }
 	let onRow =this.value -1;
 	let theRow = board.children[onRow];
-	let theGuess = getGuess(theRow);
-	if (theGuess.indexOf('undefined') > -1) { 
+	let theGuess = getGuess(theRow.children[0]);
+ 	if (theGuess.indexOf('undefined') > -1) { 
 		alert('Please complete the row.');
 		return ;
 	}
- 	let isRight = checkGuess(theGuess);
- 	theRow.classList.remove('active');
+ 	let [isRight, pegsHTML] = checkGuess(theGuess);
+ 	theRow.children[0].classList.remove('active');
+ 	theRow.children[1].innerHTML = pegsHTML;
  	if (isRight){ endGame (true); }
  	else if (onRow > 0){
-	 	board.children[onRow-1].classList.add('active');
+	 	board.children[onRow-1].children[0].classList.add('active');
 		this.value =  onRow;
  	}else{ endGame(false);}
  }
@@ -153,10 +203,9 @@ function subGuess(){
  }
  
 function palceOption(e){
-	if (!currentOpt || !e.target.parentNode.classList.contains('active')){ return;}
+ 	if (!currentOpt || !e.target.parentNode.classList.contains('active')){ return;}
   	e.target.classList = currentOpt.classList;
- 	e.target.classList.remove('selected');
- 	e.target.dataset.opt = currentOpt.dataset.opt;
+  	e.target.dataset.opt = currentOpt.dataset.opt;
 }
 
 //creates random  answer from specified lengh;
@@ -172,8 +221,8 @@ let answersHTML ='';
 let answerStr = answer.join('');
 
 function checkGuess(row){
-	let solved;
-	solved 	= (row == answerStr);
+	let solved 	= (row == answerStr);
+	let pegsHTML  = solved ?  '<span class="peg corr"></span>'.repeat(row.length):'';
 	if (!solved){
 		let located 	= 0;
 		let inAnswer 	= 0;
@@ -186,8 +235,9 @@ function checkGuess(row){
 			else {inAnswer++;}
 			chkd[row[i]] =true;
  		}
+ 		pegsHTML = '<span class="peg corr"></span>'.repeat(located)+ '<span class="peg inpass"></span>'.repeat(inAnswer)+'<span class="peg"></span>'.repeat(row.length-located-inAnswer)
  	}
- 	return solved;
+ 	return [solved, pegsHTML];
  }
  </script>
 </html>
