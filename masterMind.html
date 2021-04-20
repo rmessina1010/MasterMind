@@ -1,15 +1,25 @@
 <html>
 	<head>
 		<title>Master Mind</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="UTF-8"> 
 		<style type="text/css" media="screen">
 		body{
-				text-align: center;
+ 				font-size: 1.3em;
+				display: flex;
+				margin:0;
+				padding: 0;
+				justify-content: center;
+				
  		}
 		#app{
+				background: #e2e6ed;
 				display: inline-block;
 				position: relative;
+				border:6px solid #3f556e;
+				border-top:none;
+				border-bottom:none;
+				padding: 0 .3em 0 .6em;
   		}
 		#options {
  			border-radius: .2em;
@@ -22,31 +32,35 @@
 		}
  		#message {
 			text-align: center;
- 			padding-right: 3em;
+ 			padding-right: 1.75em;
 		}
 		
 		#options, #guess { 
-			width: 9.4em;
+			width: 8.8em;
+			background-color: #efefef  ;
 		}
 		#guess{
-			background-color: white;
  			padding:   .6em ;
- 			background: none;
- 			border: 1px solid #777;
+  			border: 1px solid #777;
  			border-radius: .25em;
- 			margin-left: -3.5em;
+ 			margin-left: 3.5em;
+ 			appearance: none;
  			
 		}
 	    #app  div > span { display: inline-block; padding: .3em .5em;  }
 		#options > *.selected { 
 			outline: 1px solid cyan;
+			text-shadow: 1px 1px 2px #000;
 		}
- 		#board .active span{
+ 		.row .active span{
 			cursor:help;
 			opacity: 100%;
 		}
-		#board span{
+		.row span{
 			opacity: 60%;
+		}
+		.row .active span:before, #passkey span:before{
+			text-shadow: 1px 1px 2px #000;
 		}
 		.r:before { content:'🍏';}
  		.g:before { content:'🍐';}
@@ -68,11 +82,12 @@
 	 		
  		}
  		.row .pegs{
-	 		width: 3em;
+	 		width: 2em;
 	 		position: relative;
 	 		top:.25em;
  		}
  		.row .pegs span{
+	 		opacity: 100%;
 	 		font-size: 18px;
 	 		width: auto;
 	 		padding: 0;
@@ -80,7 +95,8 @@
 	 		line-height: .2em;
 	 		letter-spacing: -2em;
 	 		word-spacing: -2em;
-	 		color:#bbb;
+	 		color:#777;
+	 		text-shadow:  0 -1px 1px #111, 0 1px 1px #fff ;
  		}
  		.row .pegs span:before{
 	 		content: '•';
@@ -97,7 +113,7 @@
 	<body>
 		 <div id="app">
 			 <div  id="passkey"></div>
-			 <div  id="message">&nbsp;</div>
+			 <div  id="message"><hr></div>
  			 <div id="board"></div>
  			 <div id="options"></div>
 			 <button id="guess">Submit</button>
@@ -105,7 +121,9 @@
 	</body>
 	<script type="text/javascript">
 		
-const tries		=  8;
+let tries		=  window.location.toString().match(/[\?\&]tri=(\d+)/);
+tries			=  tries ?  tries[1] * 1 : 11;
+let dup			=  window.location.toString().match(/[\?\&]dup=/)  ? true : false;
 let stack  		=  ['r','g','b','y','t','o','k','w'];
 let answer		=[];
 let selectd 	={};
@@ -191,6 +209,10 @@ function subGuess(){
  	let message = document.getElementById('message');
  	passkey.innerHTML= answersHTML;
  	message.innerHTML=  (win ? 'YOU WIN!!!' : 'You lose.') ;
+ 	guess.innerHTML = 'Play Again';
+ 	guess.removeEventListener('click', subGuess);
+ 	guess.onclick=function(){window.location.reload();}
+
  }
  
  function getGuess(row){
@@ -208,17 +230,27 @@ function palceOption(e){
   	e.target.dataset.opt = currentOpt.dataset.opt;
 }
 
+function countSetElements(arr){
+	let set ={}
+	for (let i=0; i< arr.length; i++){
+		if (set[arr[i]] === undefined){  set[arr[i]] = 0; }
+		set[arr[i]]++
+	}
+	return set;
+}
+
 //creates random  answer from specified lengh;
 let answersHTML ='';
  while  (answer.length < passLenght){
 	let i = Math.floor(Math.random() * (stack.length));
-	if (selectd[i] === undefined) { 
+	if (selectd[i] === undefined || dup) { 
 		answer.push(stack[i]);
 		answersHTML=answersHTML+`<span class="${stack[i]}"></span>`;
 		selectd[i] =i;
     }
  }
-let answerStr = answer.join('');
+const answerSet =  countSetElements(answer);
+const answerStr = answer.join('');
 
 function checkGuess(row){
 	let solved 	= (row == answerStr);
@@ -228,14 +260,21 @@ function checkGuess(row){
 		let inAnswer 	= 0;
 		let chkd		= {}
 		for (let i =0, l=row.length; i<l; i++){
-			if (chkd[row[i]]){ continue;}
- 	 		let looking = answer.indexOf(row[i]);
+  	 		let looking = answer.indexOf(row[i]);
  	 		if (looking < 0) {  continue;}
-	 		if (row[looking] == row[i]){ located++ ;  }
-			else {inAnswer++;}
-			chkd[row[i]] =true;
+	 		if (row[i] == answer[i] ){ located++ ;  }
+ 	 		if (!chkd[row[i]]){ chkd[row[i]]=0;}
+			chkd[row[i]] ++;
  		}
- 		pegsHTML = '<span class="peg corr"></span>'.repeat(located)+ '<span class="peg inpass"></span>'.repeat(inAnswer)+'<span class="peg"></span>'.repeat(row.length-located-inAnswer)
+	 	let sum =0;
+ 		let chkA;
+	 		for( prop in answerSet){
+	 		if (chkd[prop]){ 
+		 		sum += Math.min(answerSet[prop], chkd[prop]); 
+		 	}
+ 		}
+ 		inAnswer = sum - located;
+   		pegsHTML = '<span class="peg corr"></span>'.repeat(located)+ '<span class="peg inpass"></span>'.repeat(inAnswer)+'<span class="peg"></span>'.repeat(row.length-located-inAnswer)
  	}
  	return [solved, pegsHTML];
  }
