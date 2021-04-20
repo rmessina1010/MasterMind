@@ -46,6 +46,10 @@
  			margin-left: 3.5em;
  			appearance: none;
  			
+ 			
+		}
+		#guess:active{
+			color:#3f556e;
 		}
 	    #app  div > span { display: inline-block; padding: .3em .5em;  }
 		#options > *.selected { 
@@ -122,6 +126,8 @@
 	<script type="text/javascript">
 		
 let tries		=  window.location.toString().match(/[\?\&]tri=(\d+)/);
+let lvl			=  window.location.toString().match(/[\?\&]lvl=(\d+)?/);
+	lvl			=  lvl ? (!lvl[1]  || lvl[1] ==='' ? 1 : 1 * lvl[1] ): 0;
 tries			=  tries ?  tries[1] * 1 : 11;
 let dup			=  window.location.toString().match(/[\?\&]dup=/)  ? true : false;
 let stack  		=  ['r','g','b','y','t','o','k','w'];
@@ -129,6 +135,13 @@ let answer		=[];
 let selectd 	={};
 let passLenght 	= 4;
 var currentOpt	= null;
+
+if (lvl > 7){
+	dup = true;
+	if (lvl < 13) { tries = tries-lvl+8 ;}
+}
+else if(lvl>1){ tries = 1+tries-lvl; }
+	
 
 //setup  
 let options = document.getElementById('options');
@@ -211,7 +224,13 @@ function subGuess(){
  	message.innerHTML=  (win ? 'YOU WIN!!!' : 'You lose.') ;
  	guess.innerHTML = 'Play Again';
  	guess.removeEventListener('click', subGuess);
- 	guess.onclick=function(){window.location.reload();}
+ 	let loc=window.location.href;
+
+ 	if (lvl){
+	 	let newlvl = win ? 1+lvl : 1;
+	 	loc=loc.replace(/lvl(=\d*)?/,'lvl='+newlvl);
+ 	}
+ 	guess.onclick=function(){window.location.href=loc;}
 
  }
  
