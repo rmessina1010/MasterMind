@@ -2,7 +2,7 @@
 	<head>
 		<title>Master Mind</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta charset="UTF-8"> 
+		<meta charset="UTF-8">
 		<style type="text/css" media="screen">
 		body{
  				font-size: 1.3em;
@@ -10,7 +10,7 @@
 				margin:0;
 				padding: 0;
 				justify-content: center;
-				
+
  		}
 		#app{
 				background: #e2e6ed;
@@ -28,14 +28,14 @@
   			border: 1px solid #777;
  			border-radius: .25em;
  			flex-wrap: wrap;
- 			
+
 		}
  		#message {
 			text-align: center;
  			padding-right: 1.75em;
 		}
-		
-		#options, #guess { 
+
+		#options, #guess {
 			width: 8.8em;
 			background-color: #efefef  ;
 		}
@@ -45,14 +45,14 @@
  			border-radius: .25em;
  			margin-left: 3.5em;
  			appearance: none;
- 			
- 			
+
+
 		}
 		#guess:active{
 			color:#3f556e;
 		}
 	    #app  div > span { display: inline-block; padding: .3em .5em;  }
-		#options > *.selected { 
+		#options > *.selected {
 			outline: 1px solid cyan;
 			text-shadow: 1px 1px 2px #000;
 		}
@@ -74,16 +74,20 @@
  		.o:before { content:'🍉';}
  		.k:before { content:'🍇';}
  		.w:before { content:'🍓';}
+ 		.p:before { content:'🥭';}
+ 		.q:before { content:'🥝';}
+ 		.s:before { content:'🥥';}
+ 		.v:before { content:'🍌';}
  		.none:before { content:'🤔'; }
  		.secret:before{content: '🤐';}
- 		
+
  		#passkey{
 	 		text-align: left;
  		}
- 		
+
  		.row {
 	 		display:flex;
-	 		
+
  		}
  		.row .pegs{
 	 		width: 2em;
@@ -124,13 +128,14 @@
 		 </div>
 	</body>
 	<script type="text/javascript">
-		
+
 let tries		=  window.location.toString().match(/[\?\&]tri=(\d+)/);
 let lvl			=  window.location.toString().match(/[\?\&]lvl=(\d+)?/);
 	lvl			=  lvl ? (!lvl[1]  || lvl[1] ==='' ? 1 : 1 * lvl[1] ): 0;
 tries			=  tries ?  tries[1] * 1 : 11;
 let dup			=  window.location.toString().match(/[\?\&]dup=/)  ? true : false;
 let stack  		=  ['r','g','b','y','t','o','k','w'];
+if (lvl > 13) { stack = [...stack, 'p','q','s','v'];}
 let answer		=[];
 let selectd 	={};
 let passLenght 	= 4;
@@ -141,9 +146,9 @@ if (lvl > 7){
 	if (lvl < 13) { tries = tries-lvl+8 ;}
 }
 else if(lvl>1){ tries = 1+tries-lvl; }
-	
 
-//setup  
+
+//setup
 let options = document.getElementById('options');
 let passkey = document.getElementById('passkey');
 let board = document.getElementById('board');
@@ -189,7 +194,7 @@ function buildGameRows(shell,tries, passLen){
   		shell.appendChild(el.cloneNode(true));
 	}
 	passkey.innerHTML=a;
-	
+
 }
 
 function chooseOption(e){
@@ -203,7 +208,7 @@ function subGuess(){
 	let onRow =this.value -1;
 	let theRow = board.children[onRow];
 	let theGuess = getGuess(theRow.children[0]);
- 	if (theGuess.indexOf('undefined') > -1) { 
+ 	if (theGuess.indexOf('undefined') > -1) {
 		alert('Please complete the row.');
 		return ;
 	}
@@ -216,8 +221,8 @@ function subGuess(){
 		this.value =  onRow;
  	}else{ endGame(false);}
  }
- 
- 
+
+
  function endGame(win){
  	let message = document.getElementById('message');
  	passkey.innerHTML= answersHTML;
@@ -233,16 +238,16 @@ function subGuess(){
  	guess.onclick=function(){window.location.href=loc;}
 
  }
- 
+
  function getGuess(row){
 	 let str='';
-	 
+
 	 for (let i=0 ; i < row.children.length; i++){
 		 str=str+row.children[i].dataset.opt;
 	 }
 	 return str
  }
- 
+
 function palceOption(e){
  	if (!currentOpt || !e.target.parentNode.classList.contains('active')){ return;}
   	e.target.classList = currentOpt.classList;
@@ -262,7 +267,7 @@ function countSetElements(arr){
 let answersHTML ='';
  while  (answer.length < passLenght){
 	let i = Math.floor(Math.random() * (stack.length));
-	if (selectd[i] === undefined || dup) { 
+	if (selectd[i] === undefined || dup) {
 		answer.push(stack[i]);
 		answersHTML=answersHTML+`<span class="${stack[i]}"></span>`;
 		selectd[i] =i;
@@ -288,8 +293,8 @@ function checkGuess(row){
 	 	let sum =0;
  		let chkA;
 	 		for( prop in answerSet){
-	 		if (chkd[prop]){ 
-		 		sum += Math.min(answerSet[prop], chkd[prop]); 
+	 		if (chkd[prop]){
+		 		sum += Math.min(answerSet[prop], chkd[prop]);
 		 	}
  		}
  		inAnswer = sum - located;
