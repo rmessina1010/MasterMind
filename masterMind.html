@@ -133,7 +133,6 @@ let tries		=  window.location.toString().match(/[\?\&]tri=(\d+)/);
 let lvl			=  window.location.toString().match(/[\?\&]lvl=(\d+)?/);
 	lvl			=  lvl ? (!lvl[1]  || lvl[1] ==='' ? 1 : 1 * lvl[1] ): 0;
 tries			=  tries ?  tries[1] * 1 : 11;
-let dup			=  window.location.toString().match(/[\?\&]dup=/)  ? true : false;
 let stack  		=  ['r','g','b','y','t','o','k','w'];
 if (lvl > 13) { stack = [...stack, 'p','q','s','v'];}
 let answer		=[];
@@ -141,12 +140,8 @@ let selectd 	={};
 let passLenght 	= 4;
 var currentOpt	= null;
 
-if (lvl > 7){
-	dup = true;
-	if (lvl < 13) { tries = tries-lvl+8 ;}
-}
-else if(lvl>1){ tries = 1+tries-lvl; }
-
+let dup = ((lvl > 7 && (lvl < 14 || lvl >20 )) ||  window.location.toString().match(/[\?\&]dup=/));
+if (lvl) { tries =  lvl < 28 ? tries-(lvl%7) : 6;}
 
 //setup
 let options = document.getElementById('options');
