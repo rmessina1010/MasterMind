@@ -1,15 +1,17 @@
+<!doctype html>
 <html>
 	<head>
 		<title>Master Mind</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="viewport" content="height=device-height, initial-scale=1">
 		<meta charset="UTF-8">
 		<style type="text/css" media="screen">
+		html{ height:100%; }
 		body{
  				font-size: 1.3em;
-				display: flex;
 				margin:0;
 				padding: 0;
-				justify-content: center;
+				height: 100%; /* NEW */
+				text-align: center;
 
  		}
 		#app{
@@ -19,7 +21,9 @@
 				border:6px solid #3f556e;
 				border-top:none;
 				border-bottom:none;
-				padding: 0 .3em 0 .6em;
+				padding: 0 .3em .3em .6em;
+				box-sizing: border-box;
+				min-height: 100%; /* NEW */
   		}
 		#options {
  			border-radius: .2em;
@@ -43,7 +47,7 @@
  			padding:   .6em ;
   			border: 1px solid #777;
  			border-radius: .25em;
- 			margin-left: 3.5em;
+ 			margin-left: -2em;
  			appearance: none;
 
 
@@ -116,6 +120,10 @@
 	 	    color:orange;
 
   		}
+  		.disp{
+	  		text-align: center;
+	  		margin: .5em 0 0 -1.67em;
+  		}
  		</style>
  	</head>
 	<body>
@@ -125,14 +133,13 @@
  			 <div id="board"></div>
  			 <div id="options"></div>
 			 <button id="guess">Submit</button>
+			 <p class="disp" >Level: <span id="lvel"></span><br><button id="reset" valign="middle" >Reset</button></p>
 		 </div>
 	</body>
 	<script type="text/javascript">
 
-let tries		=  window.location.toString().match(/[\?\&]tri=(\d+)/);
-let lvl			=  window.location.toString().match(/[\?\&]lvl=(\d+)?/);
-	lvl			=  lvl ? (!lvl[1]  || lvl[1] ==='' ? 1 : 1 * lvl[1] ): 0;
-tries			=  tries ?  tries[1] * 1 : 11;
+let lvl			=  parseInt(localStorage.getItem('lvl' )) || 1;
+tries = 11;
 let stack  		=  ['r','g','b','y','t','o','k','w'];
 if (lvl > 13) { stack = [...stack, 'p','q','s','v'];}
 let answer		=[];
@@ -140,8 +147,8 @@ let selectd 	={};
 let passLenght 	= 4;
 var currentOpt	= null;
 
-let dup = ((lvl > 7 && (lvl < 14 || lvl >20 )) ||  window.location.toString().match(/[\?\&]dup=/));
-if (lvl) { tries =  lvl < 28 ? tries-(lvl%7) : 6;}
+let dup = ((lvl > 7 && (lvl < 14 || lvl >20 )) ||  localStorage.getItem('dup'));
+tries =  lvl < 28 ? tries-(lvl%7) : 6;
 
 //setup
 let options = document.getElementById('options');
@@ -152,6 +159,7 @@ guess.value =tries;
 options.addEventListener('click', chooseOption);
 board.addEventListener('click', palceOption);
 guess.addEventListener('click', subGuess);
+reset.onclick= resetFoo;
 
 stack.map((opt, i)=>addOption(opt,options,i));
 buildGameRows(board,tries, passLenght);
@@ -180,6 +188,8 @@ function buildGameRows(shell,tries, passLen){
 		d.appendChild(o.cloneNode(true));
 	}
 	pegs.innerHTML =peg;
+	lvel.innerHTML = lvl;
+	
 	for (let i = 0;  i < tries; i++){
 		if (i == tries-1){d.className='active';}
 		let el = row.cloneNode();
@@ -224,13 +234,8 @@ function subGuess(){
  	message.innerHTML=  (win ? 'YOU WIN!!!' : 'You lose.') ;
  	guess.innerHTML = 'Play Again';
  	guess.removeEventListener('click', subGuess);
- 	let loc=window.location.href;
-
- 	if (lvl){
-	 	let newlvl = win ? 1+lvl : 1;
-	 	loc=loc.replace(/lvl(=\d*)?/,'lvl='+newlvl);
- 	}
- 	guess.onclick=function(){window.location.href=loc;}
+    localStorage.setItem('lvl',win ? 1+lvl : 1);
+ 	guess.onclick= ()=>location.reload();
 
  }
 
@@ -297,5 +302,13 @@ function checkGuess(row){
  	}
  	return [solved, pegsHTML];
  }
+ 
+ 
+ function resetFoo(){
+	localStorage.removeItem('lvl' );
+	localStorage.removeItem('dup' );
+	location.reload();
+}
+
  </script>
 </html>
