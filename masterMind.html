@@ -95,6 +95,8 @@
  		}
  		.row .pegs{
 	 		width: 2em;
+			padding: .15em 0;
+			line-height: .2;
 	 		position: relative;
 	 		top:.25em;
  		}
@@ -104,7 +106,6 @@
 	 		width: auto;
 	 		padding: 0;
 	 		margin: 0;
-	 		line-height: .2em;
 	 		letter-spacing: -2em;
 	 		word-spacing: -2em;
 	 		color:#777;
@@ -189,7 +190,7 @@ function buildGameRows(shell,tries, passLen){
 	}
 	pegs.innerHTML =peg;
 	lvel.innerHTML = lvl;
-	
+
 	for (let i = 0;  i < tries; i++){
 		if (i == tries-1){d.className='active';}
 		let el = row.cloneNode();
@@ -302,8 +303,8 @@ function checkGuess(row){
  	}
  	return [solved, pegsHTML];
  }
- 
- 
+
+
  function resetFoo(){
 	localStorage.removeItem('lvl' );
 	localStorage.removeItem('dup' );
