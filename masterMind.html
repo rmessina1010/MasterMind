@@ -125,6 +125,21 @@
 	  		text-align: center;
 	  		margin: .5em 0 0 -1.67em;
   		}
+  		marquee{
+	  		position: fixed;
+	  		text-align: center;
+	  		z-index: 100;
+	  		background:  rgba(0,0,0,.25);
+	  		text-shadow: 1px 1px 1px #fff;
+	  		left: 0;
+	  		right: 0;
+	  		top:50%;
+	  		margin-top: -100px;
+	  		display: none;
+   		}
+   		marquee.show{
+	   		display: block;
+   		}
  		</style>
  	</head>
 	<body>
@@ -136,9 +151,23 @@
 			 <button id="guess">Submit</button>
 			 <p class="disp" >Level: <span id="lvel"></span><br><button id="reset" valign="middle" >Reset</button></p>
 		 </div>
+		 <marquee direction="up" height="200" behavior="slide"></marquee>
 	</body>
 	<script type="text/javascript">
-
+const  stages   =  {
+					1: { stage: 1,
+					  	 hint: []
+					},
+					7: { stage: 2,
+					  hint: [`Fruit can appear more than once in a row!`]
+					},
+					14: { stage: 3,
+					  hint: [`Now with 50% more fruits!!`]
+					},
+					21: { stage: 4,
+					  	  hint: [`12 Fruits to choose from!!`, `Each fruit can appear more than once in a row`]
+					},
+				   };
 let lvl			=  parseInt(localStorage.getItem('lvl' )) || 1;
 tries = 11;
 let stack  		=  ['r','g','b','y','t','o','k','w'];
@@ -311,5 +340,13 @@ function checkGuess(row){
 	location.reload();
 }
 
+  mrq = document.getElementsByTagName('marquee')[0];
+  if (stages[lvl]){
+	  mrq.innerHTML =`<h3>Welcome to stage ${stages[lvl].stage}</h3>`+stages[lvl].hint.reduce((a,c)=>a+`<p>${c}</p>`, '')+'<p>Good luck!!!</p>';
+	  mrq.classList.add('show');
+	  setTimeout( ()=> mrq.classList.remove('show'), 6000)
+   }
+
+ 
  </script>
 </html>
