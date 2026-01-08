@@ -205,6 +205,19 @@ function addOption(opt,el, key){
 	}
 }
 
+function keySelect(e){
+	const kcode = e.keyCode;
+	if (kcode < 37 || kcode > 40) { return;}
+	const offset = {37:-1, 38:-1 * passLenght, 39: 1, 40 : passLenght}[kcode];
+	const currentOpt = document.querySelector('#options > span.selected');
+ 	const optItem = currentOpt?.className.replace('selected','').trim();
+	const optIndex = optItem ? stack.indexOf(optItem) : 0;
+	let newIndex = optIndex + offset;
+	if (newIndex < 0) { newIndex+=stack.length; }
+	else if (newIndex >= stack.length){ newIndex-=stack.length; }
+	document.querySelector('#options > span.'+stack[newIndex]).click();
+}
+
 function buildGameRows(shell,tries, passLen){
 	let o = document.createElement('span');
  	o.className='none';
@@ -229,7 +242,7 @@ function buildGameRows(shell,tries, passLen){
   		shell.appendChild(el.cloneNode(true));
 	}
 	passkey.innerHTML=a;
-
+	document.addEventListener("keydown", keySelect, false);
 }
 
 function chooseOption(e){
