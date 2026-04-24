@@ -149,7 +149,7 @@
  			 <div id="board"></div>
  			 <div id="options"></div>
 			 <button id="guess">Submit</button>
-			 <p class="disp" >Level: <span id="lvel"></span><br><button id="reset" valign="middle" >Reset</button></p>
+			 <p class="disp" >Level: <span id="lvel"></span>&nbsp;&nbsp;|&nbsp;&nbsp; Score: <span id="scor"></span><br><button id="reset" valign="middle" >Reset</button></p>
 		 </div>
 		 <marquee direction="up" height="200" behavior="slide"></marquee>
 	</body>
@@ -169,7 +169,8 @@ const  stages   =  {
 					},
 				   };
 let lvl			=  parseInt(localStorage.getItem('lvl' )) || 1;
-tries = 11;
+let score =  parseInt(localStorage.getItem('score' )) || 0;
+let tries = 11;
 let stack  		=  ['r','g','b','y','t','o','k','w'];
 if (lvl > 13) { stack = [...stack, 'p','q','s','v'];}
 let answer		=[];
@@ -232,6 +233,7 @@ function buildGameRows(shell,tries, passLen){
 	}
 	pegs.innerHTML =peg;
 	lvel.innerHTML = lvl;
+	scor.innerHTML = score;
 
 	for (let i = 0;  i < tries; i++){
 		if (i == tries-1){d.className='active';}
@@ -263,7 +265,9 @@ function subGuess(){
  	let [isRight, pegsHTML] = checkGuess(theGuess);
  	theRow.children[0].classList.remove('active');
  	theRow.children[1].innerHTML = pegsHTML;
- 	if (isRight){ endGame (true); }
+ 	if (isRight){
+	 	endGame (true, onRow);
+	}
  	else if (onRow > 0){
 	 	board.children[onRow-1].children[0].classList.add('active');
 		this.value =  onRow;
@@ -271,13 +275,16 @@ function subGuess(){
  }
 
 
- function endGame(win){
+ function endGame(win, onRow = 0){
+	const newScore = score + 1 + lvl * onRow ;
  	let message = document.getElementById('message');
- 	passkey.innerHTML= answersHTML;
+  	passkey.innerHTML= answersHTML;
  	message.innerHTML=  (win ? 'YOU WIN!!!' : 'You lose.') ;
  	guess.innerHTML = 'Play Again';
  	guess.removeEventListener('click', subGuess);
     localStorage.setItem('lvl',win ? 1+lvl : 1);
+	localStorage.setItem('score', newScore );
+	scor.innerHTML = newScore;
  	guess.onclick= ()=>location.reload();
 
  }
@@ -349,6 +356,7 @@ function checkGuess(row){
 
  function resetFoo(){
 	localStorage.removeItem('lvl' );
+	localStorage.removeItem('score' );
 	localStorage.removeItem('dup' );
 	location.reload();
 }
