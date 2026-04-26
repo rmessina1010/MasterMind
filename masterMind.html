@@ -282,8 +282,12 @@ function subGuess(){
  	message.innerHTML=  (win ? 'YOU WIN!!!' : 'You lose.') ;
  	guess.innerHTML = 'Play Again';
  	guess.removeEventListener('click', subGuess);
-    localStorage.setItem('lvl',win ? 1+lvl : 1);
-	localStorage.setItem('score', newScore );
+	if (win){
+		localStorage.setItem('lvl',  1+lvl );
+		localStorage.setItem('score', newScore );
+	}else{
+		resetFoo();
+	}
 	scor.innerHTML = newScore;
  	guess.onclick= ()=>location.reload();
 
