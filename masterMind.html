@@ -190,7 +190,7 @@ guess.value =tries;
 options.addEventListener('click', chooseOption);
 board.addEventListener('click', palceOption);
 guess.addEventListener('click', subGuess);
-reset.onclick= resetFoo;
+reset.onclick= ()=>resetFoo(true);
 
 stack.map((opt, i)=>addOption(opt,options,i));
 buildGameRows(board,tries, passLenght);
@@ -358,11 +358,11 @@ function checkGuess(row){
  }
 
 
- function resetFoo(){
+ function resetFoo(reload){
 	localStorage.removeItem('lvl' );
 	localStorage.removeItem('score' );
 	localStorage.removeItem('dup' );
-	location.reload();
+	if (reload) { location.reload(); }
 }
 
   mrq = document.getElementsByTagName('marquee')[0];
