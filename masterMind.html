@@ -283,8 +283,12 @@ function subGuess(){
  	guess.innerHTML = 'Play Again';
  	guess.removeEventListener('click', subGuess);
 	if (win){
-		localStorage.setItem('lvl',  1+lvl );
-		localStorage.setItem('score', newScore );
+		localStorage.setItem('lvl',  1+lvl);
+		if (localStorage.getItem('score') < newScore ){
+			localStorage.setItem('highscore', newScore);
+		}
+		localStorage.setItem('score', newScore);
+
 	}else{
 		resetFoo();
 	}
@@ -359,9 +363,9 @@ function checkGuess(row){
 
 
  function resetFoo(reload){
-	localStorage.removeItem('lvl' );
-	localStorage.removeItem('score' );
-	localStorage.removeItem('dup' );
+	localStorage.removeItem('lvl');
+	localStorage.removeItem('score');
+	localStorage.removeItem('dup');
 	if (reload) { location.reload(); }
 }
 
