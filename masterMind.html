@@ -49,8 +49,6 @@
  			border-radius: .25em;
  			margin-left: -2em;
  			appearance: none;
-
-
 		}
 		#guess:active{
 			color:#3f556e;
@@ -181,7 +179,7 @@ var currentOpt	= null;
 let dup = ((lvl > 7 && (lvl < 14 || lvl >20 )) ||  localStorage.getItem('dup'));
 tries =  lvl < 28 ? tries-(lvl%7) : 6;
 
-//setup
+//game setup
 let options = document.getElementById('options');
 let passkey = document.getElementById('passkey');
 let board = document.getElementById('board');
@@ -294,7 +292,6 @@ function subGuess(){
 	}
 	scor.innerHTML = newScore;
  	guess.onclick= ()=>location.reload();
-
  }
 
  function getGuess(row){
@@ -375,7 +372,6 @@ function checkGuess(row){
 	  mrq.classList.add('show');
 	  setTimeout( ()=> mrq.classList.remove('show'), 6000)
    }
-
  
  </script>
 </html>
